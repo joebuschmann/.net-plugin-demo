@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Sample.AppDomain.App1")]
+[assembly: AssemblyTitle("Plugin.HttpListener")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Sample.AppDomain.App1")]
+[assembly: AssemblyProduct("Plugin.HttpListener")]
 [assembly: AssemblyCopyright("Copyright ©  2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("bbc26091-7e9e-48b6-a1ca-b11e292fbc03")]
+[assembly: Guid("bcfe58db-9d1f-4917-8dfa-b42564162a44")]
 
 // Version information for an assembly consists of the following four values:
 //

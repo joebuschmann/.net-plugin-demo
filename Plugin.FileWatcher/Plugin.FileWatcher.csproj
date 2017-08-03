@@ -52,6 +52,6 @@
   <PropertyGroup>
     <PostBuildEvent>if exist ..\..\..\apps\$(ProjectName) (rmdir /S /Q ..\..\..\apps\$(ProjectName))
 
-xcopy .\*.* ..\..\..\apps\$(ProjectName)\</PostBuildEvent>
+xcopy .\*.* ..\..\..\apps\$(ProjectName)\ /E /Q</PostBuildEvent>
   </PropertyGroup>
 </Project>

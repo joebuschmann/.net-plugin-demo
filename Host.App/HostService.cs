@@ -21,30 +21,47 @@ namespace Host.App
 
         public override void OnStart(string[] args)
         {
-            var appDomainSetup = new AppDomainSetup();
-            appDomainSetup.ApplicationBase = _currentDirectory + @"\apps\Sample.AppDomain.App1";
-            appDomainSetup.ApplicationName = "App1";
-
-            AppDomain appDomain = AppDomain.CreateDomain("App1", new Evidence(), appDomainSetup);
-            _applications.Add(new ApplicationContext(appDomain, null));
-
-            Task.Run(() => appDomain.ExecuteAssembly(appDomainSetup.ApplicationBase + "\\Sample.AppDomain.App1.exe",
-                new string[2] { "foo", "bar" }));
+//            var appDomainSetup = new AppDomainSetup();
+//            appDomainSetup.ApplicationBase = _currentDirectory + @"\apps\Sample.AppDomain.App1";
+//            appDomainSetup.ApplicationName = "App1";
+//
+//            AppDomain appDomain = AppDomain.CreateDomain("App1", new Evidence(), appDomainSetup);
+//            _applications.Add(new ApplicationContext(appDomain, null));
+//
+//            Task.Run(() => appDomain.ExecuteAssembly(appDomainSetup.ApplicationBase + "\\Sample.AppDomain.App1.exe",
+//                new string[2] { "foo", "bar" }));
 
             // Filewatcher
             var applicationStartupDetails = new ApplicationStartupDetails()
             {
                 Name = "File Watcher",
-                BaseDirectory = _currentDirectory + @"\apps\Sample.App.FileWatcher",
-                ConfigurationFile = "Sample.App.FileWatcher.dll.config",
-                AssemblyName = "Sample.App.FileWatcher",
-                TypeName = "Sample.App.FileWatcher.FileWatcherService"
+                BaseDirectory = _currentDirectory + @"\apps\Plugin.FileWatcher",
+                ConfigurationFile = "Plugin.FileWatcher.dll.config",
+                AssemblyName = "Plugin.FileWatcher",
+                TypeName = "Plugin.FileWatcher.FileWatcherService"
             };
 
             ApplicationContext application = LoadApplication(applicationStartupDetails);
 
             _applications.Add(application);
-            application.Service?.OnStart(args);
+
+            Task.Run(() => application.Service?.OnStart(args));
+
+            // Http Server
+            applicationStartupDetails = new ApplicationStartupDetails()
+            {
+                Name = "HTTP Server",
+                BaseDirectory = _currentDirectory + @"\apps\Plugin.HttpServer",
+                ConfigurationFile = "Plugin.HttpServer.dll.config",
+                AssemblyName = "Plugin.HttpServer",
+                TypeName = "Plugin.HttpServer.HttpService"
+            };
+
+            application = LoadApplication(applicationStartupDetails);
+
+            _applications.Add(application);
+
+            Task.Run(() => application.Service?.OnStart(args));
         }
 
         public override void OnStop()

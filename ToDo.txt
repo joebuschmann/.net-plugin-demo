@@ -1,6 +1,8 @@
 
-1. Add plugins to host config.
+1. Add plugins to custom host config section.
 X 2. Rename projects to remove AppDomain namespace.
 3. Add plugin to listen to a port and accept HTTP messages.
 X 4. Allow the host to run as a console app.
 X 5. Enable logging to a console window via a toggle.
+6. Host error handling.
+7. Handle System.Net.HttpListenerException when HttpServer is stopped.

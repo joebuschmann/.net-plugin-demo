@@ -41,7 +41,7 @@
             // 
             this.serviceInstaller1.Description = "This service is a project to learn how app domains work in .NET.";
             this.serviceInstaller1.DisplayName = "App Domain Learning Project";
-            this.serviceInstaller1.ServiceName = "App Domain Samples";
+            this.serviceInstaller1.ServiceName = "App Domain Learning Project";
             // 
             // ProjectInstaller
             // 
