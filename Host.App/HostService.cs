@@ -21,16 +21,6 @@ namespace Host.App
 
         public override void OnStart(string[] args)
         {
-//            var appDomainSetup = new AppDomainSetup();
-//            appDomainSetup.ApplicationBase = _currentDirectory + @"\apps\Sample.AppDomain.App1";
-//            appDomainSetup.ApplicationName = "App1";
-//
-//            AppDomain appDomain = AppDomain.CreateDomain("App1", new Evidence(), appDomainSetup);
-//            _applications.Add(new ApplicationContext(appDomain, null));
-//
-//            Task.Run(() => appDomain.ExecuteAssembly(appDomainSetup.ApplicationBase + "\\Sample.AppDomain.App1.exe",
-//                new string[2] { "foo", "bar" }));
-
             // Filewatcher
             var applicationStartupDetails = new ApplicationStartupDetails()
             {

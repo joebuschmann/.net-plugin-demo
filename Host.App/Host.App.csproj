@@ -36,12 +36,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationConfigurationSection.cs" />
     <Compile Include="ApplicationContext.cs" />
     <Compile Include="ApplicationStartupDetails.cs" />
     <Compile Include="HostService.cs" />
