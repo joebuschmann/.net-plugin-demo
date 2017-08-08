@@ -43,9 +43,8 @@
     <Reference Include="System.ServiceProcess" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationConfigurationSection.cs" />
-    <Compile Include="ApplicationContext.cs" />
-    <Compile Include="ApplicationStartupDetails.cs" />
+    <Compile Include="PluginConfigurationSection.cs" />
+    <Compile Include="PluginContext.cs" />
     <Compile Include="HostService.cs" />
     <Compile Include="ProjectInstaller.cs">
       <SubType>Component</SubType>

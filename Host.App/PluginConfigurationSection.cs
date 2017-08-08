@@ -3,48 +3,52 @@ using Host.Contract;
 
 namespace Host.App
 {
-    public class ApplicationConfigurationSection : ConfigurationSection
+    public class PluginConfigurationSection : ConfigurationSection
     {
-        private const string ApplicationsName = "applications";
+        private const string PluginsName = "plugins";
 
-        private static readonly ApplicationConfigurationSection _instance
-            = ConfigurationManager.GetSection("applicationConfiguration") as ApplicationConfigurationSection;
+        private static PluginConfigurationSection _instance = null;
 
-        public static ApplicationConfigurationSection Instance
+        public static PluginConfigurationSection Instance
         {
             get
             {
+                if (_instance == null)
+                {
+                    _instance = ConfigurationManager.GetSection("pluginConfiguration") as PluginConfigurationSection;
+                }
+
                 return _instance;
             }
         }
 
-        [ConfigurationProperty(ApplicationsName)]
-        public ApplicationConfigurationCollection Applications
+        [ConfigurationProperty(PluginsName)]
+        public PluginConfigurationCollection Plugins
         {
-            get { return (ApplicationConfigurationCollection)this[ApplicationsName]; }
+            get { return (PluginConfigurationCollection)this[PluginsName]; }
         }
     }
 
-    [ConfigurationCollection(typeof(ApplicationConfigurationElement),
+    [ConfigurationCollection(typeof(PluginConfigurationElement),
         CollectionType = ConfigurationElementCollectionType.BasicMap)]
-    public class ApplicationConfigurationCollection : ConfigurationElementCollection
+    public class PluginConfigurationCollection : ConfigurationElementCollection
     {
         protected override ConfigurationElement CreateNewElement()
         {
-            return new ApplicationConfigurationElement();
+            return new PluginConfigurationElement();
         }
 
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return (element as ApplicationConfigurationElement).Description;
+            return (element as PluginConfigurationElement).Description;
         }
     }
 
-    public class ApplicationConfigurationElement : ConfigurationElement
+    public class PluginConfigurationElement : ConfigurationElement
     {
         private const string DescriptionName = "description";
         private const string BaseDirectoryName = "baseDirectory";
-        private const string ConfigurationFileName = "configurationFile";
+        private const string AppConfigFileName = "appConfigFile";
         private const string AssemblyName = "assemblyName";
         private const string TypeName = "typeName";
 
@@ -74,16 +78,16 @@ namespace Host.App
             }
         }
 
-        [ConfigurationProperty(ConfigurationFileName, IsRequired = false)]
+        [ConfigurationProperty(AppConfigFileName, IsRequired = false)]
         public string ConfigurationFile
         {
             get
             {
-                return (string)this[ConfigurationFileName];
+                return (string)this[AppConfigFileName];
             }
             set
             {
-                this[ConfigurationFileName] = value;
+                this[AppConfigFileName] = value;
             }
         }
 
@@ -101,7 +105,6 @@ namespace Host.App
         }
 
         [ConfigurationProperty(TypeName, IsRequired = true)]
-        [SubclassTypeValidator(typeof(PluginService))]
         public string Type
         {
             get

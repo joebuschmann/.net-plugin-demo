@@ -11,17 +11,7 @@ namespace Plugin.FileWatcher
 
         public override void OnStart(string[] args)
         {
-            string directory = ConfigurationManager.AppSettings["directory"];
-
-            if (string.IsNullOrEmpty(directory))
-            {
-                throw new Exception("The directory is not configured.");
-            }
-
-            if (!Directory.Exists(directory))
-            {
-                throw new Exception($"The directory {directory} does not exist.");
-            }
+            var directory = GetTargetDirectory();
 
             _fileSystemWatcher = new FileSystemWatcher(directory);
             _fileSystemWatcher.Changed += OnChanged;
@@ -30,6 +20,35 @@ namespace Plugin.FileWatcher
             _fileSystemWatcher.Renamed += OnRenamed;
 
             _fileSystemWatcher.EnableRaisingEvents = true;
+        }
+
+        private string GetTargetDirectory()
+        {
+            string directory = ConfigurationManager.AppSettings["directory"];
+
+            if (string.IsNullOrEmpty(directory))
+            {
+                throw new Exception("The directory is not configured.");
+            }
+
+            if (string.IsNullOrEmpty(Path.GetPathRoot(directory)) || Path.GetPathRoot(directory) == @"\")
+            {
+                directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, directory);
+            }
+
+            if (!Directory.Exists(directory))
+            {
+                if ((ConfigurationManager.AppSettings["createDirectory"] != null) &&
+                    (ConfigurationManager.AppSettings["createDirectory"].ToLower() == "true"))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                else
+                {
+                    throw new Exception($"The directory {directory} does not exist.");
+                }
+            }
+            return directory;
         }
 
         public override void OnStop()
