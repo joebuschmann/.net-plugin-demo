@@ -10,7 +10,7 @@ namespace Host.App
 {
     internal class HostService : PluginService
     {
-        private readonly List<ApplicationContext> _applications = new List<ApplicationContext>();
+        private readonly List<PluginContext> _applications = new List<PluginContext>();
         private readonly string _currentDirectory;
 
         public HostService()
@@ -21,37 +21,16 @@ namespace Host.App
 
         public override void OnStart(string[] args)
         {
-            // Filewatcher
-            var applicationStartupDetails = new ApplicationStartupDetails()
+            var configuration = PluginConfigurationSection.Instance;
+
+            foreach (PluginConfigurationElement plugin in configuration.Plugins)
             {
-                Name = "File Watcher",
-                BaseDirectory = _currentDirectory + @"\apps\Plugin.FileWatcher",
-                ConfigurationFile = "Plugin.FileWatcher.dll.config",
-                AssemblyName = "Plugin.FileWatcher",
-                TypeName = "Plugin.FileWatcher.FileWatcherService"
-            };
+                PluginContext pluginContext = LoadPlugin(plugin);
 
-            ApplicationContext application = LoadApplication(applicationStartupDetails);
+                _applications.Add(pluginContext);
 
-            _applications.Add(application);
-
-            Task.Run(() => application.Service?.OnStart(args));
-
-            // Http Server
-            applicationStartupDetails = new ApplicationStartupDetails()
-            {
-                Name = "HTTP Server",
-                BaseDirectory = _currentDirectory + @"\apps\Plugin.HttpServer",
-                ConfigurationFile = "Plugin.HttpServer.dll.config",
-                AssemblyName = "Plugin.HttpServer",
-                TypeName = "Plugin.HttpServer.HttpService"
-            };
-
-            application = LoadApplication(applicationStartupDetails);
-
-            _applications.Add(application);
-
-            Task.Run(() => application.Service?.OnStart(args));
+                Task.Run(() => pluginContext.Service?.OnStart(args));
+            }
         }
 
         public override void OnStop()
@@ -63,22 +42,30 @@ namespace Host.App
             }
         }
 
-        private ApplicationContext LoadApplication(ApplicationStartupDetails applicationStartupDetails)
+        private PluginContext LoadPlugin(PluginConfigurationElement pluginConfiguration)
         {
+            string baseDirectory = pluginConfiguration.BaseDirectory;
+            
+            if (string.IsNullOrEmpty(Path.GetPathRoot(baseDirectory)) || Path.GetPathRoot(baseDirectory) == @"\")
+            {
+                // Relative path. Append current directory.
+                baseDirectory = Path.Combine(_currentDirectory, baseDirectory);
+            }
+
             var appDomainSetup = new AppDomainSetup
             {
-                ApplicationBase = applicationStartupDetails.BaseDirectory,
-                ApplicationName = applicationStartupDetails.Name,
-                ConfigurationFile = applicationStartupDetails.ConfigurationFile
+                ApplicationBase = baseDirectory,
+                ApplicationName = pluginConfiguration.Description,
+                ConfigurationFile = pluginConfiguration.ConfigurationFile
             };
 
             var appDomain =
-                AppDomain.CreateDomain(applicationStartupDetails.Name, new Evidence(), appDomainSetup);
+                AppDomain.CreateDomain(pluginConfiguration.Description, new Evidence(), appDomainSetup);
 
-            PluginService service = (PluginService) appDomain.CreateInstanceAndUnwrap(applicationStartupDetails.AssemblyName,
-                applicationStartupDetails.TypeName);
+            PluginService service = (PluginService) appDomain.CreateInstanceAndUnwrap(pluginConfiguration.Assembly,
+                pluginConfiguration.Type);
 
-            return new ApplicationContext(appDomain, service);
+            return new PluginContext(appDomain, service);
         }
     }
 }

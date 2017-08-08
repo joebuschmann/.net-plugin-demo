@@ -3,12 +3,12 @@ using Host.Contract;
 
 namespace Host.App
 {
-    internal class ApplicationContext
+    internal class PluginContext
     {
         private readonly System.AppDomain _appDomain;
         private readonly PluginService _service;
 
-        public ApplicationContext(System.AppDomain appDomain, PluginService service)
+        public PluginContext(System.AppDomain appDomain, PluginService service)
         {
             _appDomain = appDomain;
             _service = service;
