@@ -4,7 +4,10 @@ X 2. Rename projects to remove AppDomain namespace.
 X 3. Add plugin to listen to a port and accept HTTP messages.
 X 4. Allow the host to run as a console app.
 X 5. Enable logging to a console window via a toggle.
-6. Host error handling.
+X 6. Host error handling.
 7. Handle System.Net.HttpListenerException when HttpServer is stopped.
 8. Get rid of async void in HttpService class.
 9. Scripts to install service with sc.exe.
+X 10. Add logging to host.
+11. Get rid of Windows Service and project installer designer code.
+12. Add logging to file for Windows Service.

@@ -1,14 +1,17 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.ServiceProcess;
 
 namespace Host.App
 {
     public partial class WindowsHostService : ServiceBase
     {
+        private readonly Action<string> _logger;
         private HostService _hostService;
 
-        public WindowsHostService()
+        public WindowsHostService(Action<string> logger)
         {
+            _logger = logger;
             InitializeComponent();
         }
 
@@ -18,7 +21,7 @@ namespace Host.App
             Debugger.Launch();
 #endif
 
-            _hostService = new HostService();
+            _hostService = new HostService(_logger);
             _hostService.OnStart(args);
         }
 

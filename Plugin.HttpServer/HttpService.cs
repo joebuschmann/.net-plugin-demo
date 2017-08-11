@@ -8,6 +8,7 @@ namespace Plugin.HttpServer
     public class HttpService : PluginService
     {
         private HttpListener _httpListener;
+        private int _hitCount = 0;
 
         public override async void OnStart(string[] args)
         {
@@ -26,14 +27,15 @@ namespace Plugin.HttpServer
             {
                 HttpListenerContext context = await _httpListener.GetContextAsync();
 
-                string responseBody = "<html><body>Hello from Http Server.</body></html>";
+                _hitCount++;
+                string responseBody = $"<html><body>Hello from Http Server. You are visitor <em>#{_hitCount}</em>.</body></html>";
                 byte[] responseBytes = Encoding.UTF8.GetBytes(responseBody);
 
                 var response = context.Response;
                 response.ContentLength64 = responseBytes.Length;
                 response.OutputStream.Write(responseBytes, 0, responseBytes.Length);
                 response.OutputStream.Close();
-                }
+            }
         }
 
         public override void OnStop()

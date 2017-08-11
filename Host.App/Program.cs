@@ -6,6 +6,8 @@ namespace Host.App
 {
     public class Program
     {
+        private readonly Action<string> _logger;
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -15,14 +17,21 @@ namespace Host.App
             program.Run(args);
         }
 
+        public Program()
+        {
+            _logger = Console.WriteLine;
+        }
+
         private void Run(string[] args)
         {
             if (args.Length > 0 && args.Any(arg => arg == "/console"))
             {
+                _logger("Launching host as a console application.");
                 LaunchConsoleApplication(args);
             }
             else
             {
+                _logger("Launching host as a Windows Service.");
                 LaunchWindowsService();
             }
         }
@@ -31,7 +40,7 @@ namespace Host.App
         {
             var servicesToRun = new ServiceBase[]
             {
-                new WindowsHostService()
+                new WindowsHostService(_logger)
             };
 
             ServiceBase.Run(servicesToRun);
@@ -41,9 +50,7 @@ namespace Host.App
         {
             try
             {
-                Console.WriteLine("Launching services...");
-
-                HostService hostService = new HostService();
+                HostService hostService = new HostService(_logger);
                 hostService.OnStart(args);
 
                 Console.WriteLine("Services running. Press enter to shutdown the services and exit.");
