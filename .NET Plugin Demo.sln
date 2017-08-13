@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.6
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.App", "Host.App\Host.App.csproj", "{8AAEDE6C-F20C-48FC-AD54-490D7C59B696}"
 EndProject
@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Contract", "Host.Contr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CC27A33E-AED8-4FE3-AD41-3E0FCFB8E59C}"
 	ProjectSection(SolutionItems) = preProject
+		register-service.bat = register-service.bat
 		ToDo.txt = ToDo.txt
+		unregister-service.bat = unregister-service.bat
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.HttpServer", "Plugin.HttpServer\Plugin.HttpServer.csproj", "{BCFE58DB-9D1F-4917-8DFA-B42564162A44}"

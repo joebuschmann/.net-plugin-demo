@@ -4,7 +4,7 @@ using System.ServiceProcess;
 
 namespace Host.App
 {
-    public partial class WindowsHostService : ServiceBase
+    public class WindowsHostService : ServiceBase
     {
         private readonly Action<string> _logger;
         private HostService _hostService;
@@ -12,7 +12,7 @@ namespace Host.App
         public WindowsHostService(Action<string> logger)
         {
             _logger = logger;
-            InitializeComponent();
+            this.ServiceName = "Host Service";
         }
 
         protected override void OnStart(string[] args)
