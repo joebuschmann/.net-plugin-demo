@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
 
@@ -6,6 +8,7 @@ namespace Host.App
 {
     public class Program
     {
+        private readonly bool _isConsoleApplication;
         private readonly Action<string> _logger;
 
         /// <summary>
@@ -13,18 +16,21 @@ namespace Host.App
         /// </summary>
         static void Main(string[] args)
         {
-            Program program = new Program();
+            bool isConsoleApplication = (args.Length > 0 && args.Any(arg => arg == "/console"));
+
+            Program program = new Program(isConsoleApplication);
             program.Run(args);
         }
 
-        public Program()
+        public Program(bool isConsoleApplication)
         {
-            _logger = Console.WriteLine;
+            _isConsoleApplication = isConsoleApplication;
+            _logger = CreateLogger();
         }
 
         private void Run(string[] args)
         {
-            if (args.Length > 0 && args.Any(arg => arg == "/console"))
+            if (_isConsoleApplication)
             {
                 _logger("Launching host as a console application.");
                 LaunchConsoleApplication(args);
@@ -34,6 +40,24 @@ namespace Host.App
                 _logger("Launching host as a Windows Service.");
                 LaunchWindowsService();
             }
+        }
+
+        private Action<string> CreateLogger()
+        {
+            if (_isConsoleApplication)
+            {
+                return Console.WriteLine;
+            }
+
+            string source = ConfigurationManager.AppSettings["EventLog.Source"] ?? "Plugin-Demo";
+            int eventId;
+
+            if (!int.TryParse(ConfigurationManager.AppSettings["EventLog.ID"], out eventId))
+            {
+                eventId = 25;
+            }
+
+            return msg => EventLog.WriteEntry(source, msg, EventLogEntryType.Information, eventId);
         }
 
         private void LaunchWindowsService()

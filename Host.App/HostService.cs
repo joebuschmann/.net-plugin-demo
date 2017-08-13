@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.ExceptionServices;
 using System.Security.Policy;
+using System.Text;
 using System.Threading.Tasks;
 using Host.Contract;
 
@@ -31,10 +32,7 @@ namespace Host.App
 
             foreach (PluginConfigurationElement plugin in configuration.Plugins)
             {
-                _logger("=====================================");
-                _logger(plugin.ToString());
-                _logger("=====================================");
-                _logger("");
+                LogPluginInformation(plugin);
 
                 PluginContext pluginContext = LoadPlugin(plugin);
 
@@ -120,23 +118,42 @@ namespace Host.App
             }
         }
 
+        private void LogPluginInformation(PluginConfigurationElement pluginConfiguration)
+        {
+            var stringBuilder = new StringBuilder();
+            stringBuilder.AppendLine("=====================================");
+            stringBuilder.AppendLine($"Description: {pluginConfiguration.Description}");
+            stringBuilder.AppendLine($"Assembly: {pluginConfiguration.Assembly}");
+            stringBuilder.AppendLine($"Type: {pluginConfiguration.Type}");
+            stringBuilder.AppendLine($"Base Directory: {pluginConfiguration.BaseDirectory}");
+            stringBuilder.AppendLine($"Configuration File: {pluginConfiguration.ConfigurationFile}");
+            stringBuilder.AppendLine("=====================================");
+            stringBuilder.AppendLine();
+
+            _logger(stringBuilder.ToString());
+        }
+
         private void LogException(string summary, Exception e)
         {
-            _logger(summary);
-            _logger("");
+            var stringBuilder = new StringBuilder();
+
+            stringBuilder.AppendLine(summary);
+            stringBuilder.AppendLine();
 
             if (e == null)
             {
-                _logger("Unable to retrieve exception details.");
+                stringBuilder.AppendLine("Unable to retrieve exception details.");
             }
             else
             {
-                _logger("Exception:");
-                _logger(e.Message);
-                _logger("");
-                _logger("Stack trace:");
-                _logger(e.StackTrace);
+                stringBuilder.AppendLine("Exception:");
+                stringBuilder.AppendLine(e.Message);
+                stringBuilder.AppendLine();
+                stringBuilder.AppendLine("Stack trace:");
+                stringBuilder.AppendLine(e.StackTrace);
             }
+
+            _logger(stringBuilder.ToString());
         }
     }
 }
