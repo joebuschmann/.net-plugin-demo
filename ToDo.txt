@@ -5,7 +5,7 @@ X 3. Add plugin to listen to a port and accept HTTP messages.
 X 4. Allow the host to run as a console app.
 X 5. Enable logging to a console window via a toggle.
 X 6. Host error handling.
-7. Handle System.Net.HttpListenerException when HttpServer is stopped.
+X 7. Handle System.Net.HttpListenerException when HttpServer is stopped.
 X 8. Get rid of async void in HttpService class.
 X 9. Scripts to install service with sc.exe.
 X 10. Add logging to host.

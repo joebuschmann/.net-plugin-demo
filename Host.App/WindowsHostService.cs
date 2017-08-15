@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ServiceProcess;
+using Host.Contract.Log;
 
 namespace Host.App
 {
     public class WindowsHostService : ServiceBase
     {
-        private readonly Action<string> _logger;
+        private readonly ILogger _logger;
         private HostService _hostService;
 
-        public WindowsHostService(Action<string> logger)
+        public WindowsHostService(ILogger logger)
         {
             _logger = logger;
             this.ServiceName = "Host Service";

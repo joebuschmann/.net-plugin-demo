@@ -1,8 +1,10 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Host.Contract;
+using Host.Contract.Log;
 
 namespace Plugin.HttpServer
 {
@@ -10,15 +12,19 @@ namespace Plugin.HttpServer
     {
         private HttpListener _httpListener;
         private int _hitCount = 0;
+        private ILogger _logger;
 
-        public override void OnStart(string[] args)
+        public override void OnStart(ILogger logger)
         {
+            _logger = logger;
+
             StartHttpListener();
             WaitForRequests().ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
-                    throw t.Exception.InnerException;
+                    string summary = "An exception was thrown while handling a request in HTTPListener.";
+                    _logger.Write(summary, t.Exception);
                 }
             });
         }
@@ -56,7 +62,14 @@ namespace Plugin.HttpServer
 
         public override void OnStop()
         {
-            _httpListener.Stop();
+            try
+            {
+                _httpListener.Stop();
+            }
+            catch (Exception e)
+            {
+                _logger.Write(e.Message);
+            }
         }
     }
 }

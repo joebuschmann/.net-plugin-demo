@@ -11,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Host.Contract", "Host.Contr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CC27A33E-AED8-4FE3-AD41-3E0FCFB8E59C}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		register-service.bat = register-service.bat
 		ToDo.txt = ToDo.txt
 		unregister-service.bat = unregister-service.bat

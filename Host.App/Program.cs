@@ -3,13 +3,14 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
+using Host.Contract.Log;
 
 namespace Host.App
 {
     public class Program
     {
         private readonly bool _isConsoleApplication;
-        private readonly Action<string> _logger;
+        private readonly ILogger _logger;
 
         /// <summary>
         /// The main entry point for the application.
@@ -32,21 +33,21 @@ namespace Host.App
         {
             if (_isConsoleApplication)
             {
-                _logger("Launching host as a console application.");
+                _logger.Write("Launching host as a console application.");
                 LaunchConsoleApplication(args);
             }
             else
             {
-                _logger("Launching host as a Windows Service.");
+                _logger.Write("Launching host as a Windows Service.");
                 LaunchWindowsService();
             }
         }
 
-        private Action<string> CreateLogger()
+        private ILogger CreateLogger()
         {
             if (_isConsoleApplication)
             {
-                return Console.WriteLine;
+                return new ConsoleLogger();
             }
 
             string source = ConfigurationManager.AppSettings["EventLog.Source"] ?? "Plugin-Demo";
@@ -57,7 +58,7 @@ namespace Host.App
                 eventId = 25;
             }
 
-            return msg => EventLog.WriteEntry(source, msg, EventLogEntryType.Information, eventId);
+            return new EventLogLogger(source, eventId);
         }
 
         private void LaunchWindowsService()

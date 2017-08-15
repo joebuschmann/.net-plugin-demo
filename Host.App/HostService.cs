@@ -6,28 +6,29 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 using Host.Contract;
+using Host.Contract.Log;
 
 namespace Host.App
 {
-    internal class HostService : PluginService
+    internal class HostService
     {
-        private readonly Action<string> _logger;
+        private readonly ILogger _logger;
         private readonly List<PluginContext> _applications = new List<PluginContext>();
         private readonly string _currentDirectory;
 
-        public HostService(Action<string> logger)
+        public HostService(ILogger logger)
         {
             _logger = logger;
             var fileInfo = new FileInfo(Assembly.GetEntryAssembly().Location);
             _currentDirectory = fileInfo.DirectoryName;
         }
 
-        public override void OnStart(string[] args)
+        public void OnStart(string[] args)
         {
             var configuration = PluginConfigurationSection.Instance;
 
-            _logger($"Loading plugins from the directory: {_currentDirectory}");
-            _logger($"Found {configuration.Plugins.Count} plugin(s).");
+            _logger.Write($"Loading plugins from the directory: {_currentDirectory}");
+            _logger.Write($"Found {configuration.Plugins.Count} plugin(s).");
 
             foreach (PluginConfigurationElement plugin in configuration.Plugins)
             {
@@ -37,42 +38,42 @@ namespace Host.App
 
                 _applications.Add(pluginContext);
 
-                Task.Run(() => pluginContext.Service?.OnStart(args))
+                Task.Run(() => pluginContext.Service?.OnStart(_logger))
                     .ContinueWith(t =>
                     {
                         if (t.IsFaulted)
                         {
                             var summary = $"An exception was thrown when starting the plugin {plugin.Description}.";
-                            LogException(summary, t.Exception?.InnerException);
+                            _logger.Write(summary, t.Exception);
                         }
                         else if (t.IsCompleted)
                         {
-                            _logger($"{plugin.Description} started successfully.");
+                            _logger.Write($"{plugin.Description} started successfully.");
                         }
                     });
             }
         }
 
-        public override void OnStop()
+        public void OnStop()
         {
-            _logger($"Stopping {_applications.Count} plugin(s).");
+            _logger.Write($"Stopping {_applications.Count} plugin(s).");
 
             foreach (var application in _applications)
             {
                 var name = application.AppDomain.FriendlyName;
 
-                _logger($"Stopping {name}.");
+                _logger.Write($"Stopping {name}.");
 
                 try
                 {
                     application.Service?.OnStop();
                     AppDomain.Unload(application.AppDomain);
 
-                    _logger($"{name} stopped successfully.");
+                    _logger.Write($"{name} stopped successfully.");
                 }
                 catch (Exception e)
                 {
-                    LogException($"{name} failed to stop.", e);
+                    _logger.Write($"{name} failed to stop.", e);
                 }
             }
         }
@@ -112,7 +113,7 @@ namespace Host.App
             catch (Exception e)
             {
                 var summary = $"Failed to load the plugin {pluginConfiguration.Description}.";
-                LogException(summary, e);
+                _logger.Write(summary, e);
                 throw;
             }
         }
@@ -129,30 +130,7 @@ namespace Host.App
             stringBuilder.AppendLine("=====================================");
             stringBuilder.AppendLine();
 
-            _logger(stringBuilder.ToString());
-        }
-
-        private void LogException(string summary, Exception e)
-        {
-            var stringBuilder = new StringBuilder();
-
-            stringBuilder.AppendLine(summary);
-            stringBuilder.AppendLine();
-
-            if (e == null)
-            {
-                stringBuilder.AppendLine("Unable to retrieve exception details.");
-            }
-            else
-            {
-                stringBuilder.AppendLine("Exception:");
-                stringBuilder.AppendLine(e.Message);
-                stringBuilder.AppendLine();
-                stringBuilder.AppendLine("Stack trace:");
-                stringBuilder.AppendLine(e.StackTrace);
-            }
-
-            _logger(stringBuilder.ToString());
+            _logger.Write(stringBuilder.ToString());
         }
     }
 }
