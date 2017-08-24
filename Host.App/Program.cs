@@ -3,6 +3,7 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.ServiceProcess;
+using Host.App.Configuration;
 using Host.Contract.Log;
 
 namespace Host.App
@@ -75,7 +76,7 @@ namespace Host.App
         {
             try
             {
-                HostService hostService = new HostService(_logger);
+                HostService hostService = new HostService(_logger, PluginConfigurationSection.Instance);
                 hostService.OnStart(args);
 
                 Console.WriteLine("Services running. Press enter to shutdown the services and exit.");

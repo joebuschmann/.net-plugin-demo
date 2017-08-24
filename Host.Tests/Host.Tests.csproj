@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8AAEDE6C-F20C-48FC-AD54-490D7C59B696}</ProjectGuid>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Host.App</RootNamespace>
-    <AssemblyName>Host.App</AssemblyName>
+    <ProjectGuid>{8E4D49D5-8114-4F83-A58E-EBA7481B07C5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Host.Tests</RootNamespace>
+    <AssemblyName>Host.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -31,44 +29,48 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
+    <Reference Include="nunit.framework, Version=3.7.1.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.7.1\lib\net45\nunit.framework.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Configuration.Install" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Configuration\IPluginConfiguration.cs" />
-    <Compile Include="Configuration\IPluginConfigurationItem.cs" />
-    <Compile Include="Configuration\PluginConfigurationCollection.cs" />
-    <Compile Include="Configuration\PluginConfigurationElement.cs" />
-    <Compile Include="Configuration\PluginConfigurationSection.cs" />
-    <Compile Include="PluginContext.cs" />
-    <Compile Include="HostService.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="HostServiceFixture.cs" />
+    <Compile Include="Mocks\TestPluginConfiguration.cs" />
+    <Compile Include="Mocks\TestPluginConfigurationItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WindowsHostService.cs">
-      <SubType>Component</SubType>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Host.App\Host.App.csproj">
+      <Project>{8aaede6c-f20c-48fc-ad54-490d7c59b696}</Project>
+      <Name>Host.App</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Host.Contract\Host.Contract.csproj">
       <Project>{57c4911e-3059-43e9-a07a-e266e100023d}</Project>
       <Name>Host.Contract</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Host.Tests.Contract\Host.Tests.Contract.csproj">
+      <Project>{b322257c-c22b-4e5b-884b-64778a781b4e}</Project>
+      <Name>Host.Tests.Contract</Name>
+    </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if not exist .\apps (mkdir apps)
+    <PostBuildEvent>if not exist .\apps-test (mkdir apps-test)
 
-xcopy ..\..\..\apps\*.* .\apps\ /E /Y</PostBuildEvent>
+xcopy ..\..\..\apps-test\*.* .\apps-test\ /E /Y</PostBuildEvent>
   </PropertyGroup>
 </Project>

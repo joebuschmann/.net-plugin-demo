@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
+using System.Linq;
 using System.Security.Policy;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using Host.App.Configuration;
 using Host.Contract;
 using Host.Contract.Log;
 
@@ -13,45 +15,30 @@ namespace Host.App
     internal class HostService
     {
         private readonly ILogger _logger;
+        private readonly IPluginConfiguration _pluginConfiguration;
         private readonly List<PluginContext> _applications = new List<PluginContext>();
         private readonly string _currentDirectory;
 
-        public HostService(ILogger logger)
+        public HostService(ILogger logger, IPluginConfiguration pluginConfiguration)
         {
             _logger = logger;
-            var fileInfo = new FileInfo(Assembly.GetEntryAssembly().Location);
+            _pluginConfiguration = pluginConfiguration;
+            var fileInfo = new FileInfo(typeof(HostService).Assembly.Location);
             _currentDirectory = fileInfo.DirectoryName;
         }
 
         public void OnStart(string[] args)
         {
-            var configuration = PluginConfigurationSection.Instance;
-
             _logger.Write($"Loading plugins from the directory: {_currentDirectory}");
-            _logger.Write($"Found {configuration.Plugins.Count} plugin(s).");
+            _logger.Write($"Found {_pluginConfiguration.Plugins.Count()} plugin(s).");
 
-            foreach (PluginConfigurationElement plugin in configuration.Plugins)
-            {
-                LogPluginInformation(plugin);
+            var tasks = RunPlugins();
 
-                PluginContext pluginContext = LoadPlugin(plugin);
+            // Wait on handles instead of Tasks. Task.WaitAll throws an exception if any of the tasks are faulted.
+            WaitHandle[] waitHandles = tasks.Select(t => ((IAsyncResult) t).AsyncWaitHandle).ToArray();
+            WaitHandle.WaitAll(waitHandles);
 
-                _applications.Add(pluginContext);
-
-                Task.Run(() => pluginContext.Service?.OnStart(_logger))
-                    .ContinueWith(t =>
-                    {
-                        if (t.IsFaulted)
-                        {
-                            var summary = $"An exception was thrown when starting the plugin {plugin.Description}.";
-                            _logger.Write(summary, t.Exception);
-                        }
-                        else if (t.IsCompleted)
-                        {
-                            _logger.Write($"{plugin.Description} started successfully.");
-                        }
-                    });
-            }
+            HandleExceptions(tasks);
         }
 
         public void OnStop()
@@ -66,7 +53,7 @@ namespace Host.App
 
                 try
                 {
-                    application.Service?.OnStop();
+                    application.Service?.OnStop(_logger);
                     AppDomain.Unload(application.AppDomain);
 
                     _logger.Write($"{name} stopped successfully.");
@@ -78,7 +65,53 @@ namespace Host.App
             }
         }
 
-        private PluginContext LoadPlugin(PluginConfigurationElement pluginConfiguration)
+        private List<Task> RunPlugins()
+        {
+            List<Task> tasks = new List<Task>();
+
+            foreach (IPluginConfigurationItem plugin in _pluginConfiguration.Plugins)
+            {
+                LogPluginInformation(plugin);
+
+                PluginContext pluginContext = LoadPlugin(plugin);
+
+                _applications.Add(pluginContext);
+
+                Task task = Task.Run(() => pluginContext.Service?.OnStart(_logger));
+                tasks.Add(task);
+            }
+            return tasks;
+        }
+
+        private void HandleExceptions(List<Task> tasks)
+        {
+            List<Exception> exceptions = new List<Exception>();
+
+            for (int i = 0; i < tasks.Count; i++)
+            {
+                Task task = tasks[i];
+                IPluginConfigurationItem plugin = _pluginConfiguration.Plugins.ElementAt(i);
+
+                if (task.IsFaulted)
+                {
+                    var summary = $"An exception was thrown when starting the plugin {plugin.Description}.";
+                    _logger.Write(summary, task.Exception);
+                    exceptions.AddRange(task.Exception.InnerExceptions);
+                }
+                else if (task.IsCompleted)
+                {
+                    _logger.Write($"{plugin.Description} started successfully.");
+                }
+            }
+
+            if (exceptions.Count > 0)
+            {
+                throw new AggregateException("One or more plugins failed to start. See inner exceptions for more details.",
+                    exceptions);
+            }
+        }
+
+        private PluginContext LoadPlugin(IPluginConfigurationItem pluginConfiguration)
         {
             try
             {
@@ -118,7 +151,7 @@ namespace Host.App
             }
         }
 
-        private void LogPluginInformation(PluginConfigurationElement pluginConfiguration)
+        private void LogPluginInformation(IPluginConfigurationItem pluginConfiguration)
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("=====================================");

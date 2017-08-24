@@ -15,9 +15,9 @@ namespace Host.Contract.Log
             _eventId = eventId;
         }
 
-        public void Write(string msg)
+        public void Write(string message)
         {
-            EventLog.WriteEntry(_source, msg, EventLogEntryType.Information, _eventId);
+            EventLog.WriteEntry(_source, message, EventLogEntryType.Information, _eventId);
         }
     }
 }

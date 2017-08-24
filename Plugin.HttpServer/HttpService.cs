@@ -12,19 +12,16 @@ namespace Plugin.HttpServer
     {
         private HttpListener _httpListener;
         private int _hitCount = 0;
-        private ILogger _logger;
 
         public override void OnStart(ILogger logger)
         {
-            _logger = logger;
-
             StartHttpListener();
             WaitForRequests().ContinueWith(t =>
             {
                 if (t.IsFaulted)
                 {
                     string summary = "An exception was thrown while handling a request in HTTPListener.";
-                    _logger.Write(summary, t.Exception);
+                    logger.Write(summary, t.Exception);
                 }
             });
         }
@@ -60,7 +57,7 @@ namespace Plugin.HttpServer
             }
         }
 
-        public override void OnStop()
+        public override void OnStop(ILogger logger)
         {
             try
             {
@@ -68,7 +65,7 @@ namespace Plugin.HttpServer
             }
             catch (Exception e)
             {
-                _logger.Write(e.Message);
+                logger.Write(e.Message);
             }
         }
     }

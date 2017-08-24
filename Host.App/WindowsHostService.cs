@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics;
 using System.ServiceProcess;
+using Host.App.Configuration;
 using Host.Contract.Log;
 
 namespace Host.App
 {
-    public class WindowsHostService : ServiceBase
+    internal class WindowsHostService : ServiceBase
     {
         private readonly ILogger _logger;
         private HostService _hostService;
@@ -22,7 +23,7 @@ namespace Host.App
             Debugger.Launch();
 #endif
 
-            _hostService = new HostService(_logger);
+            _hostService = new HostService(_logger, PluginConfigurationSection.Instance);
             _hostService.OnStart(args);
         }
 

@@ -62,7 +62,7 @@ namespace Plugin.FileWatcher
             return directory;
         }
 
-        public override void OnStop()
+        public override void OnStop(ILogger logger)
         {
             if (_fileSystemWatcher != null && _fileSystemWatcher.EnableRaisingEvents)
             {

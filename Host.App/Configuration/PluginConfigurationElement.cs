@@ -1,50 +1,8 @@
-﻿using System.Configuration;
-using Host.Contract;
+using System.Configuration;
 
-namespace Host.App
+namespace Host.App.Configuration
 {
-    public class PluginConfigurationSection : ConfigurationSection
-    {
-        private const string PluginsName = "plugins";
-
-        private static PluginConfigurationSection _instance = null;
-
-        public static PluginConfigurationSection Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = ConfigurationManager.GetSection("pluginConfiguration") as PluginConfigurationSection;
-                }
-
-                return _instance;
-            }
-        }
-
-        [ConfigurationProperty(PluginsName)]
-        public PluginConfigurationCollection Plugins
-        {
-            get { return (PluginConfigurationCollection)this[PluginsName]; }
-        }
-    }
-
-    [ConfigurationCollection(typeof(PluginConfigurationElement),
-        CollectionType = ConfigurationElementCollectionType.BasicMap)]
-    public class PluginConfigurationCollection : ConfigurationElementCollection
-    {
-        protected override ConfigurationElement CreateNewElement()
-        {
-            return new PluginConfigurationElement();
-        }
-
-        protected override object GetElementKey(ConfigurationElement element)
-        {
-            return (element as PluginConfigurationElement).Description;
-        }
-    }
-
-    public class PluginConfigurationElement : ConfigurationElement
+    public class PluginConfigurationElement : ConfigurationElement, IPluginConfigurationItem
     {
         private const string DescriptionName = "description";
         private const string BaseDirectoryName = "baseDirectory";
